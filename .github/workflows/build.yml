@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-name: Build CI
+name: Check REUSE
 
 on: [pull_request, push]
 
@@ -14,13 +14,13 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.x"
-    - name: Check Python version
-      run: |
-        python3 --version
     - name: Checkout repo
       uses: actions/checkout@v3
       with:
         submodules: true
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
     - name: Run pre-commit hooks
       run: |
         pre-commit run --all-files
