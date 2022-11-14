@@ -70,9 +70,11 @@ string_cache = Path("string_cache.txt")
 # If the file string_cache.txt does not exist...
 if not string_cache.exists():
     # ...fail here with instructions to create the file.
-    raise Exception(f"{string_cache} does not exist. "
-                    f"Create an empty file named {string_cache} in "
-                    f"the same directory as this script.")
+    raise Exception(
+        f"{string_cache} does not exist. "
+        f"Create an empty file named {string_cache} in "
+        f"the same directory as this script."
+    )
 
 # Hashtag generation.
 # Creates an empty string to which to append tags.
@@ -84,7 +86,7 @@ try:
         # Filter out tags that are numeric (i.e. years). This was added as a workaround due to
         # an issue that causes inclusion of the current year as a tag even though it is not
         # explicitly included in the tag list.
-        if not tag_obj['term'].isnumeric():
+        if not tag_obj["term"].isnumeric():
             # Append each tag to string with space and hashtag.
             tags_str = f"{tags_str} #{tag_obj['term']}"
     # Trim the leading space.
