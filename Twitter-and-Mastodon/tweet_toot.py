@@ -5,6 +5,8 @@
 Parse an RSS feed and generate a string based on the content, and send that string as a message to
 Twitter and Mastodon.
 
+Thank you to @foamyguy for help with the `feedparser` code.
+
 PREREQUISITES FOR RUNNING THIS CODE
 Note: Prerequisites are also detailed in the README on GitHub.
 1. You MUST acquire API access for both Twitter and Mastodon. Please check the documentation for

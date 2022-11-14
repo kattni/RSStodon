@@ -1,6 +1,8 @@
 # TwitteRSS
 ## Parse an RSS Feed and Post Content to Twitter and Mastodon
 
+Thank you to @foamyguy for help with the `feedparser` code.
+
 ### Code usage
 **If you have not already, please complete the prerequisites below before running the script.**
 
