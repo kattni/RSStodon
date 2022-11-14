@@ -56,7 +56,7 @@ SEND_TO_TWITTER = True
 SEND_TO_MASTODON = True
 
 # Update to match your Mastodon server base URL. Defaults to "https://octodon.social".
-mastodon_server_url = "https://octodon.social"
+MASTODON_SERVER_URL = "https://octodon.social"
 
 # Update this URL to match the RSS feed of your choice. Defaults to kattni.com feed.
 feed = feedparser.parse("https://kattni.com/feeds/all.atom.xml")
@@ -78,7 +78,7 @@ if not string_cache.exists():
 
 # Hashtag generation.
 # Creates an empty string to which to append tags.
-tags_str = ""
+TAGS_STRING = ""
 # Try to parse "tags" out of the RSS feed.
 try:
     # Loop through tags to obtain the tags.
@@ -88,9 +88,9 @@ try:
         # explicitly included in the tag list.
         if not tag_obj["term"].isnumeric():
             # Append each tag to string with space and hashtag.
-            tags_str = f"{tags_str} #{tag_obj['term']}"
+            TAGS_STRING = f"{TAGS_STRING} #{tag_obj['term']}"
     # Trim the leading space.
-    tags_str = tags_str[1:]
+    TAGS_STRING = TAGS_STRING[1:]
 # If there is no "tags" entry in the RSS feed, continue on to the next section.
 except KeyError:
     pass
@@ -98,13 +98,13 @@ except KeyError:
 # Message content generation.
 # Generate the message content from the parsed RSS feed.
 message_template_string = (
-    f"{feed['items'][0]['title']} {feed['items'][0]['links'][0]['href']} {tags_str}"
+    f"{feed['items'][0]['title']} {feed['items'][0]['links'][0]['href']} {TAGS_STRING}"
 )
 
 # Duplicate post check.
 # Avoids sending duplicate messages by verifying that the message template string
 # generated above is not identical to the last string sent using this script.
-if string_cache.read_text() == message_template_string:
+if string_cache.read_text(encoding="utf-8") == message_template_string:
     raise Exception("Message template string has not been updated.")
 
 # API Authentication.
@@ -121,22 +121,22 @@ try:
     # Attempts to access Twitter API to verify authentication.
     client.get_me()
 # If Twitter authentication fails, except confusing error...
-except tweepy.errors.Unauthorized:
+except tweepy.errors.Unauthorized as exception:
     # ...and raise clearer one.
-    raise Exception("Authentication failed. Check your keys.")
+    raise Exception("Authentication failed. Check your keys.") from exception
 
 # try/except used here for consistency. The Mastodon authentication failure is clearer.
 try:
     # Authenticate to Mastodon.
     mastodon = mastodon.Mastodon(
-        access_token=MASTODON_ACCESS_TOKEN, api_base_url=mastodon_server_url
+        access_token=MASTODON_ACCESS_TOKEN, api_base_url=MASTODON_SERVER_URL
     )
     # Attempts to access Mastodon API to verify authentication.
     mastodon.me()
 # If authentication fails, except Mastodon default error...
-except mastodon.Mastodon.MastodonUnauthorizedError:
+except mastodon.Mastodon.MastodonUnauthorizedError as exception:
     # ...and raise the same as above.
-    raise Exception("Authentication failed. Check your keys.")
+    raise Exception("Authentication failed. Check your keys.") from exception
 
 # Send messages.
 # If Twitter is enabled (True) above...
@@ -152,4 +152,4 @@ if SEND_TO_MASTODON:
 # Update string cache.
 # Once both messages are sent successfully, update the content of string_cache.txt to the latest
 # message template string for comparison the next time this script is run.
-string_cache.write_text(message_template_string)
+string_cache.write_text(message_template_string, encoding="utf-8")
