@@ -9,7 +9,7 @@ Thank you to @foamyguy for help with the `feedparser` code.
 To use this example, from the directory containing the script file, simply run the following from command line:
 
 ```commandline
-python tweet_toot.py
+python rss_to_toot.py
 ```
 Note: If Python 2 is your default version, you may need to modify the command to begin with `python3`.
 
@@ -21,36 +21,23 @@ Note: If Python 2 is your default version, you may need to modify the command to
     pip install -r requirements.txt
     ```
    Note: If Python 3 is not your default version, you may have to modify the command to begin with `pip3`.
-3. You must acquire API access for both Twitter and Mastodon. Please check the documentation for each platform for information on how to obtain the appropriate keys.
-   * For Twitter, this means you should obtain the following:
-     * Twitter API key
-     * Twitter API key secret
-     * Twitter access token
-     * Twitter access token secret
-     * Twitter bearer token
-
+3. You must acquire API access for Mastodon. Please check the documentation for Mastodon for information on how to obtain the appropriate token.
    * For Mastodon, this means you should obtain the following:
      * Mastodon access token
 
-4. Once all six keys are obtained, they should be added to a _keys.py_ file in the same directory as this script, as strings assigned to the following list of variables.
-      * TWITTER_API_KEY
-      * TWITTER_API_KEY_SECRET
-      * TWITTER_ACCESS_TOKEN
-      * TWITTER_ACCESS_TOKEN_SECRET
-      * TWITTER_BEARER_TOKEN
+4. Once the key is obtained, it should be added to a _keys.py_ file in the same directory as this script, as a string assigned to the following variable.
       * MASTODON_ACCESS_TOKEN
 
-   For example, the first line in keys.py should look similar to the following:
+   For example, keys.py should contain something similar to the following:
    ```python
-   TWITTER_API_KEY = "yourtwitterapikeyhere"
+   MASTODON_ACCESS_TOKEN = "yourmastodonaccesstokenhere"
    ```
 
 5. Create an empty file named _string_cache.txt_ in the same directory from which you plan to run this script. The code checks for it and fails with instructions if you have not already done this before running the script.
 
-6. In the `** CUSTOMISATIONS **` section at the beginning of the code, update each of the variables to your desired settings or content. The customisable options are as follows:
-    * Disable one or both social media platforms from sending, by updating `True` on one or both of the following lines to `False`. Both default to `True` meaning both are enabled by default.
+6. In the `** CUSTOMISATIONS **` section at the beginning of the code, update the variables to your desired settings or content. The customisable options are as follows:
+    * Disable sending to Mastodon, by updating `True` shown on the following line to `False`. It defaults to `True` meaning sending is enabled by default.
       ```python
-      SEND_TO_TWITTER = True
       SEND_TO_MASTODON = True
       ```
     * Update mastodon_server_url to your Mastodon server URL as a string. Defaults to `"https://octodon.social"`.

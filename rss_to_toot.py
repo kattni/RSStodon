@@ -3,58 +3,40 @@
 
 """
 Parse an RSS feed and generate a string based on the content, and send that string as a message to
-Twitter and Mastodon.
+Mastodon.
 
 Thank you to @foamyguy for help with the `feedparser` code.
 
 PREREQUISITES FOR RUNNING THIS CODE
 Note: Prerequisites are also detailed in the README on GitHub.
-1. You MUST acquire API access for both Twitter and Mastodon. Please check the documentation for
-each platform for information on how to obtain the appropriate keys.
-    For Twitter, this means you should obtain the following:
-    * Twitter API key
-    * Twitter API key secret
-    * Twitter access token
-    * Twitter access token secret
-    * Twitter bearer token
-    For Mastodon, this means you should obtain the following:
+1. You MUST acquire API access to Mastodon. Please check the documentation for
+the Mastodon API for information on how to obtain the appropriate keys.
+    This means you should obtain the following:
     * Mastodon access token
 
-2. Once all six keys are obtained, they should be added to a keys.py file in the same directory as
-this script, as strings assigned to the following list of variables.
-    * TWITTER_API_KEY
-    * TWITTER_API_KEY_SECRET
-    * TWITTER_ACCESS_TOKEN
-    * TWITTER_ACCESS_TOKEN_SECRET
-    * TWITTER_BEARER_TOKEN
+2. Once your access token is obtained, it should be added to a keys.py file in the same directory
+as this script, as a string assigned to the following variable.
     * MASTODON_ACCESS_TOKEN
-    For example, the first line in keys.py should look similar to the following:
-    TWITTER_API_KEY = "yourtwitterapikeyhere"
+    For example, keys.py should contain a line similar to the following:
+    MASTODON_ACCESS_TOKEN = "yourmastodonaccesstokenhere"
 
 3. Create an empty file named string_cache.txt in the same directory from which you plan to run
 this script. The code checks for it and fails with instructions if you have not already done this
 before running the script.
 
-4. In the CUSTOMISATIONS section at the beginning of the code, update each of the variables to
-your desired settings or content. Instructions for each included in the code comments.
+4. In the CUSTOMISATIONS section at the beginning of the code, update the variable to
+your desired setting or content. Instructions for each included in the code comments.
 """
 
 from pathlib import Path
 import feedparser
-import tweepy
 import mastodon
 from keys import (
-    TWITTER_API_KEY,
-    TWITTER_API_KEY_SECRET,
-    TWITTER_ACCESS_TOKEN,
-    TWITTER_ACCESS_TOKEN_SECRET,
-    TWITTER_BEARER_TOKEN,
     MASTODON_ACCESS_TOKEN,
 )
 
 # ** CUSTOMISATIONS **
-# Disable one or both of the platforms by setting the related variable to False. Defaults to True.
-SEND_TO_TWITTER = True
+# Disable sending to Mastodon by setting the variable to False. Defaults to True.
 SEND_TO_MASTODON = True
 
 # Update to match your Mastodon server base URL. Defaults to "https://octodon.social".
@@ -110,48 +92,23 @@ if string_cache.read_text(encoding="utf-8") == message_template_string:
     raise Exception("Message template string has not been updated.")
 
 # API Authentication.
-# try/except used here because the default error is not clear as to why it failed.
-try:
-    # Authenticate to Twitter.
-    client = tweepy.Client(
-        TWITTER_BEARER_TOKEN,
-        TWITTER_API_KEY,
-        TWITTER_API_KEY_SECRET,
-        TWITTER_ACCESS_TOKEN,
-        TWITTER_ACCESS_TOKEN_SECRET,
-    )
-    # Attempts to access Twitter API to verify authentication.
-    client.get_me()
-# If Twitter authentication fails, except confusing error...
-except tweepy.errors.Unauthorized as exception:
-    # ...and raise clearer one.
-    raise Exception("Authentication failed. Check your keys.") from exception
+# Authenticate to Mastodon.
+mastodon = mastodon.Mastodon(
+    access_token=MASTODON_ACCESS_TOKEN, api_base_url=MASTODON_SERVER_URL
+)
+# Attempts to access Mastodon API to verify authentication.
+mastodon.me()
+# If authentication fails, you'll receive an error here. Verify your access token
+# and URL are correct if this happens.
 
-# try/except used here for consistency. The Mastodon authentication failure is clearer.
-try:
-    # Authenticate to Mastodon.
-    mastodon = mastodon.Mastodon(
-        access_token=MASTODON_ACCESS_TOKEN, api_base_url=MASTODON_SERVER_URL
-    )
-    # Attempts to access Mastodon API to verify authentication.
-    mastodon.me()
-# If authentication fails, except Mastodon default error...
-except mastodon.Mastodon.MastodonUnauthorizedError as exception:
-    # ...and raise the same as above.
-    raise Exception("Authentication failed. Check your keys.") from exception
 
 # Send messages.
-# If Twitter is enabled (True) above...
-if SEND_TO_TWITTER:
-    # Send the generated string as a message to Twitter.
-    client.create_tweet(text=message_template_string)
-
 # If Mastodon is enabled (True) above...
 if SEND_TO_MASTODON:
     # Send the generated string as a message to Mastodon.
     mastodon.toot(message_template_string)
 
 # Update string cache.
-# Once both messages are sent successfully, update the content of string_cache.txt to the latest
+# Once the message is sent successfully, update the content of string_cache.txt to the latest
 # message template string for comparison the next time this script is run.
 string_cache.write_text(message_template_string, encoding="utf-8")
